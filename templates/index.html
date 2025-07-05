@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>兴万聚报销系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: #F5F8FA;
+        }
+        .center-box {
+            max-width: 450px;
+            margin: 80px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(79,142,247,0.10);
+            padding: 40px 30px 30px 30px;
+        }
+        .btn-lg {
+            font-size: 1.2rem;
+            padding: 0.8rem 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-box text-center">
+        <h1 class="mb-3" style="font-size:2.5rem;">兴万聚报销系统</h1>
+        <p class="mb-4 text-secondary">欢迎使用企业报销管理平台</p>
+        <div class="d-grid gap-3 mb-4">
+            <!-- 常用操作 -->
+            <a href="{{ url_for('submit_expense') }}" class="btn btn-mainblue btn-lg">提交报销</a>
+            <a href="{{ url_for('view_records') }}" class="btn btn-lightblue btn-lg">查看我的报销记录</a>
+        </div>
+        <hr class="my-3">
+        {% if role == 'finance' %}
+        <div class="d-grid gap-2 mb-4">
+            <!-- 财务专属管理操作 -->
+            <a href="{{ url_for('approve_expense') }}" class="btn btn-mainblue btn-lg">审批报销</a>
+            <a href="{{ url_for('all_records') }}" class="btn btn-skyblue btn-lg">查看所有报销记录</a>
+            <a href="{{ url_for('user_manage') }}" class="btn btn-grayblue btn-lg">用户管理</a>
+            <a href="{{ url_for('type_manage') }}" class="btn btn-lightblue btn-lg">类型管理</a>
+        </div>
+        <hr class="my-3">
+        {% elif role == 'boss' %}
+        <div class="d-grid gap-2 mb-4">
+            <!-- 老板仅能看所有报销记录 -->
+            <a href="{{ url_for('all_records') }}" class="btn btn-skyblue btn-lg">查看所有报销记录</a>
+        </div>
+        <hr class="my-3">
+        {% endif %}
+        <div class="d-grid gap-2">
+            <!-- 个人操作 -->
+            <a href="{{ url_for('change_password') }}" class="btn btn-outline-blue btn-lg">修改密码</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-grayblue btn-lg">退出登录</a>
+        </div>
+    </div>
+</body>
+</html> 

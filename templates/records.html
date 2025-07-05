@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>兴万聚报销系统 - 报销记录</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 class="mb-4">报销记录</h2>
+
+    <!-- ===== 筛选区域 ===== -->
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <input type="date" name="start_date" class="form-control"
+                   value="{{ request.args.get('start_date','') }}" placeholder="起始日期">
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="end_date" class="form-control"
+                   value="{{ request.args.get('end_date','') }}" placeholder="结束日期">
+        </div>
+
+        <div class="col-md-3">
+            <select name="type" class="form-select">
+                <option value="">全部类型</option>
+                {% for t in types %}
+                <option value="{{ t.id }}"
+                        {% if request.args.get('type') and request.args.get('type')|int == t.id %}selected{% endif %}>
+                    {{ t.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">全部状态</option>
+                <option value="待审批"     {% if request.args.get('status') == '待审批' %}selected{% endif %}>待审批</option>
+                <option value="通过审批"   {% if request.args.get('status') == '通过审批' %}selected{% endif %}>已通过</option>
+                <option value="驳回"       {% if request.args.get('status') == '驳回' %}selected{% endif %}>已驳回</option>
+            </select>
+        </div>
+
+        {% if users and users|length > 0 %}
+        <div class="col-md-3">
+            <select name="username" class="form-select">
+                <option value="">全部报销人</option>
+                {% for user in users %}
+                <option value="{{ user.username }}"
+                        {% if request.args.get('username') == user.username %}selected{% endif %}>
+                    {{ user.realname }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-info">筛选</button>
+        </div>
+    </form>
+
+    <form id="pdf-generate-form" method="post" action="{{ url_for('generate_pdf') }}">
+        <input type="hidden" name="selected_ids" id="selected_ids">
+        <button type="button" class="btn btn-success mb-3" onclick="submitPdfForm()">生成pdf报销单</button>
+    </form>
+
+    <!-- ===== 列表区域 ===== -->
+    <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="min-width:40px;">选择</th>
+                <th style="min-width:60px;">编号</th>
+                <th style="min-width:110px;">日期
+                    <a href="?sort=date_asc"  class="text-decoration-none">↑</a>
+                    <a href="?sort=date_desc" class="text-decoration-none">↓</a>
+                </th>
+                <th style="min-width:80px;">类型</th>
+                <th style="min-width:120px;">内容</th>
+                <th style="min-width:80px;">金额
+                    <a href="?sort=amount_asc"  class="text-decoration-none">↑</a>
+                    <a href="?sort=amount_desc" class="text-decoration-none">↓</a>
+                </th>
+                <th style="min-width:60px;">发票</th>
+                <th style="min-width:120px;">备注</th>
+                <th style="min-width:70px;">状态</th>
+                <th style="min-width:80px;">提交人</th>
+                {% if role in ['finance','user'] %}
+                <th>操作</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in expenses %}
+            <tr>
+                <td>
+                {% if e.status == '通过审批' and e.submitter_id == session['user_id'] %}
+                    <input type="checkbox" class="pdf-select" value="{{ e.id }}">
+                {% endif %}
+                </td>
+                <td>{{ loop.index }}</td>
+                <td>{{ e.date.strftime('%Y-%m-%d') if e.date else '' }}</td>
+                <td>{{ e.type.name }}</td>   {# 关键修改 #}
+                <td>{{ e.title }}</td>
+                <td>{{ e.amount }}</td>
+                <td style="white-space: nowrap;">
+                    {% if e.invoice %}
+                    <a href="{{ url_for('invoice_preview', filename=e.invoice) }}" target="_blank"
+                       class="btn btn-link btn-sm p-0 me-1" style="font-size:0.95em;">查看</a>
+                    <a href="{{ url_for('static', filename='invoices/' ~ e.invoice) }}" download
+                       class="btn btn-link btn-sm p-0" style="font-size:0.95em;">下载</a>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ e.description }}
+                    {% if e.status == '驳回' and e.reject_reason %}
+                        <br><span class="text-danger">驳回理由：{{ e.reject_reason }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ e.status }}</td>
+                <td>{{ e.submitter.realname }}</td>
+
+                {% if role == 'finance' %}
+                <td>
+                    <form method="post" action="{{ url_for('expense_delete', expense_id=e.id) }}"
+                          style="display:inline;" onsubmit="return confirm('确定要删除该报销单吗？');">
+                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                    </form>
+                    {% if e.submitter_id == session['user_id'] and e.status != '通过审批' %}
+                    <a href="{{ url_for('edit_expense', expense_id=e.id) }}"
+                       class="btn btn-sm btn-warning ms-1">编辑</a>
+                    {% endif %}
+                </td>
+                {% elif e.submitter_id == session['user_id'] and e.status != '通过审批' %}
+                <td>
+                    <a href="{{ url_for('edit_expense', expense_id=e.id) }}"
+                       class="btn btn-sm btn-warning">编辑</a>
+                </td>
+                {% else %}
+                <td></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4"><strong>合计</strong></td>
+                <td><strong>{{ total|round(2) }}</strong></td>
+                <td colspan="5"></td>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
+
+    <script>
+    function submitPdfForm() {
+        var checked = Array.from(document.querySelectorAll('.pdf-select:checked')).map(cb => cb.value);
+        if (checked.length === 0) {
+            alert('请至少选择一条已通过审批的报销记录！');
+            return;
+        }
+        document.getElementById('selected_ids').value = checked.join(',');
+        document.getElementById('pdf-generate-form').submit();
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用户管理 - 兴万聚报销系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 class="mb-4">用户管理</h2>
+    <a href="{{ url_for('user_add') }}" class="btn btn-primary mb-3">新增用户</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>中文姓名</th>
+                <th>角色</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.realname }}</td>
+                <td>
+                    {% if u.role == 'user' %}报销人
+                    {% elif u.role == 'finance' %}财务
+                    {% elif u.role == 'boss' %}老板
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('user_edit', user_id=u.id) }}" class="btn btn-sm btn-warning">编辑</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
+</body>
+</html>

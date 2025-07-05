@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>兴万聚报销系统 - 待审批报销单</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 class="mb-4">待审批报销单</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">
+          {% for message in messages %}
+            <div>{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>序号</th>
+                <th>日期</th>
+                <th>类型</th>
+                <th>标题</th>
+                <th>金额</th>
+                <th>发票</th>
+                <th>说明</th>
+                <th>提交人</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in expenses %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ e.date }}</td>
+                <td>{{ e.type.name }}</td>   {# 关键修改 #}
+                <td>{{ e.title }}</td>
+                <td>{{ e.amount }}</td>
+                <td>
+                    {% if e.invoice %}
+                        <a href="{{ url_for('invoice_preview', filename=e.invoice) }}" target="_blank">查看</a>
+                    {% endif %}
+                </td>
+                <td>{{ e.description }}</td>
+                <td>{{ e.submitter.realname }}</td>
+                <td>
+                    <!-- 通过表单 -->
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="expense_id" value="{{ e.id }}">
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">通过</button>
+                    </form>
+                    <!-- 驳回表单 -->
+                    <form method="post" style="display:inline;" onsubmit="return checkRejectReason(this);">
+                        <input type="hidden" name="expense_id" value="{{ e.id }}">
+                        <span class="reject-reason-box" style="display:none;">
+                            <input type="text" name="reject_reason" class="form-control d-inline-block" style="width:120px;" placeholder="驳回理由">
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm ms-1">确认驳回</button>
+                        </span>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="showRejectReason(this)">驳回</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">返回首页</a>
+
+    <script>
+    function showRejectReason(btn) {
+        btn.style.display = 'none';
+        var box = btn.parentElement.querySelector('.reject-reason-box');
+        box.style.display = 'inline-block';
+        var input = box.querySelector('input[name="reject_reason"]');
+        input.required = true;
+        input.focus();
+    }
+    function checkRejectReason(form) {
+        var input = form.querySelector('input[name="reject_reason"]');
+        if (!input.value.trim()) {
+            input.focus();
+            return false;
+        }
+        return true;
+    }
+    </script>
+</body>
+</html>

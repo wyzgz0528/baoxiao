@@ -1,0 +1,68 @@
+body {
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    background: #E6ECF3; /* 柔和极浅蓝背景 */
+    margin: 0;
+    padding: 0;
+}
+h2 {
+    color: #3A5A99; /* 柔和主蓝色标题 */
+}
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 20px 0;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(58,90,153,0.08);
+}
+th, td {
+    border: 1px solid #B7C9E2;
+    padding: 8px 12px;
+    text-align: left;
+}
+th {
+    background: #E6ECF3;
+}
+a {
+    color: #3A5A99;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+    color: #5A8FD6;
+}
+form {
+    margin: 10px 0;
+}
+input, select, textarea {
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid #B7C9E2;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* 柔和蓝色系按钮配色 */
+.btn-mainblue { background-color: #3A5A99 !important; color: #fff !important; border: none; }
+.btn-lightblue { background-color: #B7C9E2 !important; color: #333 !important; border: none; }
+.btn-skyblue { background-color: #5A8FD6 !important; color: #fff !important; border: none; }
+.btn-outline-blue { background-color: #fff !important; color: #3A5A99 !important; border: 1px solid #3A5A99 !important; }
+.btn-grayblue { background-color: #E6ECF3 !important; color: #333 !important; border: none; }
+
+.btn-mainblue:hover { background-color: #2C406B !important; color: #fff !important; }
+.btn-lightblue:hover { background-color: #A2B6CE !important; color: #333 !important; }
+.btn-skyblue:hover { background-color: #3A5A99 !important; color: #fff !important; }
+.btn-outline-blue:hover { background-color: #3A5A99 !important; color: #fff !important; border: 1px solid #3A5A99 !important; }
+.btn-grayblue:hover { background-color: #B7C9E2 !important; color: #333 !important; }
+
+/* 柔和分割线 */
+hr { border-top: 2px solid #B7C9E2; opacity: 1; }
+
+/* 卡片和表单容器柔和阴影 */
+.center-box, .container, .table, .form-control, .form-select {
+    box-shadow: 0 2px 12px rgba(58,90,153,0.08);
+} 

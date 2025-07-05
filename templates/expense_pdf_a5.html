@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>费用报销单</title>
+    <style>
+        body {
+            font-family: SimSun, '宋体', Arial, sans-serif;
+            font-size: 13px;
+            margin: 0;
+            padding: 0;
+        }
+        .a5-sheet {
+            width: 188mm;
+            margin: 0 auto;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: 8px;
+            text-underline: double;
+        }
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            box-sizing: border-box;
+        }
+        .main-table th, .main-table td {
+            border: 1px solid #000;
+            padding: 0;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .main-table .no-border {
+            border: none !important;
+        }
+        .main-table .sign-row td {
+            border: none !important;
+            font-size: 12px;
+            text-align: left;
+            height: 18px;
+        }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .small { font-size: 12px; }
+        .v-top { vertical-align: top; }
+    </style>
+</head>
+<body>
+<div class="a5-sheet">
+    <div class="title">费 用 报 销 单</div>
+    <table class="main-table" style="height:130mm;">
+        <!-- 表头无边框 -->
+        <tr>
+            <td class="no-border left" colspan="2" style="width:30%;">报销部门：</td>
+            <td class="no-border" style="width:7%;"></td>
+            <td class="no-border" style="width:7%;">年</td>
+            <td class="no-border" style="width:7%;"></td>
+            <td class="no-border" style="width:7%;">月</td>
+            <td class="no-border" style="width:7%;"></td>
+            <td class="no-border" style="width:7%;">日填</td>
+            <td class="no-border right" colspan="2" style="width:28%;">单据及附件共 {{ total_pages }} 页</td>
+        </tr>
+        <!-- 表头列名 -->
+        <tr>
+            <th style="width:18%;">用途</th>
+            <th style="width:12%;">金额(元)</th>
+            <th style="width:20%;">备注</th>
+            <th style="width:30%;" colspan="3">&nbsp;</th>
+            <th style="width:20%;" colspan="3">&nbsp;</th>
+        </tr>
+        <!-- 明细区及右侧备注栏 -->
+        {% for item in details %}
+        <tr style="height:18mm;">
+            <td style="width:18%; text-align:left;">{{ item.desc }}</td>
+            <td style="width:12%;">{{ item.amount }}</td>
+            <td style="width:20%; text-align:left;">{{ item.description }}</td>
+            {% if loop.index == 1 %}
+            <td class="v-top" rowspan="5" colspan="3" style="width:30%; text-align:left; vertical-align:top;">
+                <div style="height:90mm;"></div>
+                备注
+            </td>
+            {% endif %}
+            {% if loop.index == 1 %}
+            <td rowspan="5" colspan="3" style="width:20%; border:none;"></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        <!-- 合计行和右侧部门/领导审核 -->
+        <tr>
+            <td colspan="2" class="right"><b>合计</b></td>
+            <td></td>
+            <td colspan="2" style="height:18mm;">部门审核</td>
+            <td colspan="2" style="height:18mm;">领导审批</td>
+            <td colspan="2" style="border:none;"></td>
+        </tr>
+        <!-- 金额大写/原借款/应退余额 -->
+        <tr>
+            <td colspan="3" class="left small">金额大写：{{ total_amount_upper }}</td>
+            <td colspan="3" class="left small">原借款：&nbsp;&nbsp;&nbsp;&nbsp;元</td>
+            <td colspan="3" class="left small">应退余额：&nbsp;&nbsp;&nbsp;&nbsp;元</td>
+            <td style="border:none;"></td>
+        </tr>
+        <!-- 签字区无边框 -->
+        <tr class="sign-row">
+            <td colspan="2">会计主管：</td>
+            <td colspan="2">会计：</td>
+            <td colspan="2">出纳：</td>
+            <td colspan="2">报销人：{{ submitter_name }}</td>
+            <td colspan="2">领款人：</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html> 
